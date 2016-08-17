@@ -2078,6 +2078,11 @@
             ind = ind || previewId.slice(previewId.lastIndexOf('-') + 1);
             tmplt = self._parseFilePreviewIcon(tmplt, fname);
             if (cat === 'text' || cat === 'html') {
+                if (self.textEncoding === 'UTF-8 BOM') {
+                  data = new Uint8Array(data);
+                  data = String.fromCharCode.apply(null, data);
+                }
+                
                 sText = cat === 'text' ? htmlEncode(data) : data;
                 content = tmplt.replace(/\{previewId}/g, previewId).replace(/\{caption}/g, caption)
                     .replace(/\{width}/g, config.width).replace(/\{height}/g, config.height)
@@ -2275,7 +2280,7 @@
                     isText = ifSet('text', settings, defaultFileTypeSettings.text);
                     isImage = ifSet('image', settings, defaultFileTypeSettings.image);
 
-                    if (isText(file.type, caption)) {
+                    if (isText(file.type, caption) && self.textEncoding !== 'UTF-8 BOM') {
                         reader.readAsText(file, self.textEncoding);
                     } else {
                         if (isImage(file.type, caption)) {
